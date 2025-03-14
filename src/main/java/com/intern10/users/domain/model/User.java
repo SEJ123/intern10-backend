@@ -25,6 +25,5 @@ public class User {
     private String nickname;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
     private Role role;
 }
