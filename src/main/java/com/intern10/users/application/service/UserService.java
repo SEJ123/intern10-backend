@@ -1,6 +1,9 @@
 package com.intern10.users.application.service;
 
+import com.intern10.users.application.dto.reqeust.LoginRequestDto;
 import com.intern10.users.application.dto.reqeust.SignupRequestDto;
+import com.intern10.users.application.dto.response.LoginResponseDto;
+import com.intern10.users.application.security.jwt.JwtTokenProvider;
 import com.intern10.users.common.CustomException;
 import com.intern10.users.common.ErrorCode;
 import com.intern10.users.domain.model.Role;
@@ -16,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final JwtTokenProvider jwtTokenProvider;
 
     @Transactional
     public User signup(SignupRequestDto signupRequestDto) {
@@ -36,7 +40,21 @@ public class UserService {
         return userRepository.save(user);
     }
 
+    public LoginResponseDto login(LoginRequestDto loginRequestDto) {
+        // 1. 사용자 존재 여부 확인
+        User user = userRepository.findByUsername(loginRequestDto.getUsername())
+                .orElseThrow(()-> new CustomException(ErrorCode.INVALID_CREDENTIALS, ErrorCode.INVALID_CREDENTIALS.getDescription()));
 
+        // 2. 비밀번호 검증
+        if (!user.getPassword().equals(loginRequestDto.getPassword())) {
+            throw new CustomException(ErrorCode.INVALID_CREDENTIALS, ErrorCode.INVALID_CREDENTIALS.getDescription());
+        }
+
+        // 3. access token 생성
+        String accessToken = jwtTokenProvider.createAccessToken(user.getUsername(), user.getRole().toString());
+
+        return new LoginResponseDto(accessToken);
+    }
 
 
 /////////////////////////////////////////////////////////////
