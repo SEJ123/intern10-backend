@@ -30,7 +30,7 @@ public class SecurityConfig {
                         .requestMatchers("/h2-console/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/signup").permitAll()
                         .requestMatchers(HttpMethod.POST, "/login").permitAll()
-                        .requestMatchers(HttpMethod.PATCH, "/admin/users/{userId}/roles").permitAll()
+                        .requestMatchers(HttpMethod.PATCH, "/admin/users/{userId}/roles").hasAnyAuthority("ADMIN")
 
                         // TEST 사용자 조회
                         .requestMatchers(HttpMethod.GET, "/info/**").permitAll()

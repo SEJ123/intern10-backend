@@ -35,8 +35,10 @@ public class UserController {
 
     // 관리자 권한 부여
     @PatchMapping("/admin/users/{userId}/roles")
-    public ResponseEntity<UpdateRoleResponseDto> updateRole(@PathVariable Long userId){
-        UpdateRoleResponseDto updateRoleResponseDto = userService.updateRole(userId);
+    public ResponseEntity<UpdateRoleResponseDto> updateRole(
+            @RequestHeader("Authorization") String token,
+            @PathVariable Long userId){
+        UpdateRoleResponseDto updateRoleResponseDto = userService.updateRole(token, userId);
         return ResponseEntity.ok(updateRoleResponseDto);
     }
 

@@ -22,6 +22,7 @@ public class UserDetailsImpl implements UserDetails {
         return List.of(new SimpleGrantedAuthority(user.getRole().name()));
     }
 
+
     @Override
     public String getPassword() {
         return user.getPassword();  // User 객체에서 비밀번호 반환
@@ -30,6 +31,10 @@ public class UserDetailsImpl implements UserDetails {
     @Override
     public String getUsername() {
         return user.getUsername();  // User 객체에서 사용자명 반환
+    }
+
+    public Long getUserId() {
+        return user.getUserId();
     }
 
     @Override

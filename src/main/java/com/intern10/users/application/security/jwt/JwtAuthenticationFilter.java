@@ -41,16 +41,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         // 토큰 만료 여부 확인
         if (token != null && !jwtTokenProvider.isTokenExpired(token)) {
-
-            if(jwtTokenProvider.isTokenExpired(token)) {
-                throw new CustomException(ErrorCode.INVALID_TOKEN, ErrorCode.INVALID_TOKEN.getDescription());
-            }
-
             try {
-                String username = jwtTokenProvider.getUsernameFromToken(token);
+                Long userId = jwtTokenProvider.getUserIdFromToken(token);
 
                 // 인증 객체 생성
-                Authentication authentication = createAuthentication(username, token);
+                Authentication authentication = createAuthentication(userId, token);
 
                 // SecurityContext에 인증 객체 설정
                 SecurityContext context = SecurityContextHolder.createEmptyContext();
@@ -59,14 +54,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             } catch (Exception e) {
                 throw new CustomException(ErrorCode.INVALID_TOKEN, ErrorCode.INVALID_TOKEN.getDescription());
             }
-
         }
         filterChain.doFilter(request, response);
     }
 
 
-    private Authentication createAuthentication(String username, String token) {
-        UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+    private Authentication createAuthentication(Long userId, String token) {
+        UserDetails userDetails = userDetailsService.loadUserByUserId(userId);
 
         // token에서 권한
         String role = jwtTokenProvider.getRoleFromToken(token);
