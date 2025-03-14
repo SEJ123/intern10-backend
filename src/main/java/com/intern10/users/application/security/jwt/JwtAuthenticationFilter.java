@@ -1,6 +1,8 @@
 package com.intern10.users.application.security.jwt;
 
 import com.intern10.users.application.service.UserDetailsServiceImpl;
+import com.intern10.users.common.CustomException;
+import com.intern10.users.common.ErrorCode;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -40,15 +42,24 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         // 토큰 만료 여부 확인
         if (token != null && !jwtTokenProvider.isTokenExpired(token)) {
 
-            String username = jwtTokenProvider.getUsernameFromToken(token);
+            if(jwtTokenProvider.isTokenExpired(token)) {
+                throw new CustomException(ErrorCode.INVALID_TOKEN, ErrorCode.INVALID_TOKEN.getDescription());
+            }
 
-            // 인증 객체 생성
-            Authentication authentication = createAuthentication(username, token);
+            try {
+                String username = jwtTokenProvider.getUsernameFromToken(token);
 
-            // SecurityContext에 인증 객체 설정
-            SecurityContext context = SecurityContextHolder.createEmptyContext();
-            context.setAuthentication(authentication);
-            SecurityContextHolder.setContext(context);
+                // 인증 객체 생성
+                Authentication authentication = createAuthentication(username, token);
+
+                // SecurityContext에 인증 객체 설정
+                SecurityContext context = SecurityContextHolder.createEmptyContext();
+                context.setAuthentication(authentication);
+                SecurityContextHolder.setContext(context);
+            } catch (Exception e) {
+                throw new CustomException(ErrorCode.INVALID_TOKEN, ErrorCode.INVALID_TOKEN.getDescription());
+            }
+
         }
         filterChain.doFilter(request, response);
     }
