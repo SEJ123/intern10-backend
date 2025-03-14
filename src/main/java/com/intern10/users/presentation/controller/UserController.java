@@ -1,6 +1,8 @@
 package com.intern10.users.presentation.controller;
 
+import com.intern10.users.application.dto.reqeust.LoginRequestDto;
 import com.intern10.users.application.dto.reqeust.SignupRequestDto;
+import com.intern10.users.application.dto.response.LoginResponseDto;
 import com.intern10.users.application.dto.response.SignupResponseDto;
 import com.intern10.users.application.service.UserService;
 import com.intern10.users.domain.model.User;
@@ -23,4 +25,13 @@ public class UserController {
         SignupResponseDto signupResponseDto = new SignupResponseDto(savedUser);
         return ResponseEntity.ok(signupResponseDto);
     }
+
+    // 로그인
+    @PostMapping("/login")
+    public ResponseEntity<LoginResponseDto> login(@RequestBody LoginRequestDto loginRequestDto){
+        LoginResponseDto loginResponseDto = userService.login(loginRequestDto);
+        return ResponseEntity.ok(loginResponseDto);
+    }
+
+
 }
