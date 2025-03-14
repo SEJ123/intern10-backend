@@ -15,6 +15,9 @@ import lombok.NoArgsConstructor;
 public class User {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long userId;
+
     @Column(nullable=false, unique=true)
     private String username;
 
@@ -26,4 +29,8 @@ public class User {
 
     @Enumerated(EnumType.STRING)
     private Role role;
+
+    public void updateRole() {
+        this.role = Role.ADMIN;
+    }
 }

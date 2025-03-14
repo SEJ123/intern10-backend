@@ -3,6 +3,8 @@ package com.intern10.users.application.service;
 import com.intern10.users.application.dto.reqeust.LoginRequestDto;
 import com.intern10.users.application.dto.reqeust.SignupRequestDto;
 import com.intern10.users.application.dto.response.LoginResponseDto;
+import com.intern10.users.application.dto.response.UpdateRoleResponseDto;
+import com.intern10.users.application.dto.response.UserInfoResponseDto;
 import com.intern10.users.application.security.jwt.JwtTokenProvider;
 import com.intern10.users.common.CustomException;
 import com.intern10.users.common.ErrorCode;
@@ -54,6 +56,28 @@ public class UserService {
         String accessToken = jwtTokenProvider.createAccessToken(user.getUsername(), user.getRole().toString());
 
         return new LoginResponseDto(accessToken);
+    }
+
+    @Transactional
+    public UpdateRoleResponseDto updateRole(Long userId) {
+        // 1. 사용자 존재 여부 확인
+        User user = userRepository.findByUserId(userId)
+                .orElseThrow(()-> new CustomException(ErrorCode.INVALID_CREDENTIALS, ErrorCode.INVALID_CREDENTIALS.getDescription()));
+
+        // 2. role = ADMIN으로 바꾸기
+        user.updateRole();
+
+        // 3. 저장
+        User savedUser = userRepository.save(user);
+
+        return new UpdateRoleResponseDto(savedUser);
+    }
+
+    // TEST 사용자 조회
+    public UserInfoResponseDto userInfo(String username) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(()-> new CustomException(ErrorCode.INVALID_CREDENTIALS, ErrorCode.INVALID_CREDENTIALS.getDescription()));
+        return new UserInfoResponseDto(user);
     }
 
 
