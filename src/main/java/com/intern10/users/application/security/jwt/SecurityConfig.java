@@ -27,8 +27,13 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(authorize -> authorize
+                        .requestMatchers("/h2-console/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/signup").permitAll()
                         .requestMatchers(HttpMethod.POST, "/login").permitAll()
+                        .requestMatchers(HttpMethod.PATCH, "/admin/users/{userId}/roles").hasAnyAuthority("ADMIN")
+
+                        // TEST 사용자 조회
+                        .requestMatchers(HttpMethod.GET, "/info/**").permitAll()
                         // 그 외의 요청은 인증 필요
                         .anyRequest().authenticated()
                 )

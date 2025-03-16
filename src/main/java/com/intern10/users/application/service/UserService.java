@@ -3,6 +3,8 @@ package com.intern10.users.application.service;
 import com.intern10.users.application.dto.reqeust.LoginRequestDto;
 import com.intern10.users.application.dto.reqeust.SignupRequestDto;
 import com.intern10.users.application.dto.response.LoginResponseDto;
+import com.intern10.users.application.dto.response.UpdateRoleResponseDto;
+import com.intern10.users.application.dto.response.UserInfoResponseDto;
 import com.intern10.users.application.security.jwt.JwtTokenProvider;
 import com.intern10.users.common.CustomException;
 import com.intern10.users.common.ErrorCode;
@@ -34,6 +36,7 @@ public class UserService {
                 .password(signupRequestDto.getPassword())
                 .nickname(signupRequestDto.getNickname())
                 .role(Role.USER)
+//                .role(signupRequestDto.getRole())
                 .build();
 
         // 3. 저장
@@ -51,9 +54,37 @@ public class UserService {
         }
 
         // 3. access token 생성
-        String accessToken = jwtTokenProvider.createAccessToken(user.getUsername(), user.getRole().toString());
+        String accessToken = jwtTokenProvider.createAccessToken(user.getUserId(), user.getRole().toString());
 
         return new LoginResponseDto(accessToken);
+    }
+
+    @Transactional
+    public UpdateRoleResponseDto updateRole(String token, Long userId) {
+        // 1. 관리자 확인
+        if(!isAdminRole(token) && !jwtTokenProvider.getUserIdFromToken(token).equals(userId)){
+            throw new CustomException(ErrorCode.ACCESS_DENIED, ErrorCode.ACCESS_DENIED.getDescription());
+        }
+
+
+        // 2. 사용자 존재 여부 확인
+        User user = userRepository.findByUserId(userId)
+                .orElseThrow(()-> new CustomException(ErrorCode.INVALID_CREDENTIALS, ErrorCode.INVALID_CREDENTIALS.getDescription()));
+
+        // 3. role = ADMIN으로 바꾸기
+        user.updateRole();
+
+        // 4. 저장
+        User savedUser = userRepository.save(user);
+
+        return new UpdateRoleResponseDto(savedUser);
+    }
+
+    // TEST 사용자 조회
+    public UserInfoResponseDto userInfo(String username) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(()-> new CustomException(ErrorCode.INVALID_CREDENTIALS, ErrorCode.INVALID_CREDENTIALS.getDescription()));
+        return new UserInfoResponseDto(user);
     }
 
 
@@ -70,5 +101,12 @@ public class UserService {
         if(userRepository.existsByNickname(nickname)){
             throw new CustomException(ErrorCode.USER_ALREADY_EXISTS, ErrorCode.USER_ALREADY_EXISTS.getDescription());
         }
+    }
+
+
+    private boolean isAdminRole(String token) {
+        String jwtToken = jwtTokenProvider.extractToken(token);
+        String role = jwtTokenProvider.getRoleFromToken(jwtToken);
+        return "ADMIN".equals(role);
     }
 }

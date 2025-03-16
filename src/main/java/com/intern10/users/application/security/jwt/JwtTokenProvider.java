@@ -35,9 +35,9 @@ public class JwtTokenProvider {
     }
 
 
-    public String createAccessToken(String username, String role) {
+    public String createAccessToken(Long userId, String role) {
         return Jwts.builder()
-                .claim("username", username)
+                .claim("userId", userId)
                 .claim("role", role)
                 .setIssuer(issuer)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
@@ -72,10 +72,10 @@ public class JwtTokenProvider {
         return claims.getExpiration().before(new Date()); // 만료된 토큰 체크
     }
 
-    public String getUsernameFromToken(String token) {
+    public Long getUserIdFromToken(String token) {
         String jwtToken = extractToken(token);
         Claims claims = getClaims(jwtToken);
-        return claims.get("username", String.class);
+        return claims.get("userId", Long.class);
     }
 
     public String getRoleFromToken(String token) {
