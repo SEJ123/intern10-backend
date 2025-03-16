@@ -43,6 +43,18 @@
   ![image](https://github.com/user-attachments/assets/9840ff00-f191-47a5-92d5-a0bb75f316fa)</br>
 
 
+ ## 트러블 슈팅
+ - 관리자 권한 부여 : 권한 설정을 했을 때, token을 가져오지 못 함
+  - SecurityConfig 설정</br>
+    ![image](https://github.com/user-attachments/assets/56a72a5f-0a5b-439f-97d3-54c10fd3c160)</br>
+  - SecurityConfig 설정시, 403에러 발생</br>
+    ![image](https://github.com/user-attachments/assets/a0a0294e-7ab9-495d-87ae-7bc6ab812075)</br>
+  - 디버깅으로 확인 결과, token이 들어오지 않는 것을 확인 (디버깅에 걸리지 않음)</br>
+    ![image](https://github.com/user-attachments/assets/fd16ff11-2c06-4cc5-8e94-53989cd77661)
+
+  
+
+
 
 
 
